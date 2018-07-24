@@ -1,10 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const apiRouter = require('./api/routes')
+const createApiRouter = require('./api/routes')
 const db = require('./db')
 const User = require('./models/user')
 
-const authentication = require('./authentication')
+const authentication = require('./authentication/')
 const passport = authentication.passport
 const jwt = authentication.jwt
 const jwtOptions = authentication.jwtOptions
@@ -29,8 +29,7 @@ app.get('/new-user', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-    const username = req.body.username
-    const password = req.body.password
+    const { username, password } = req.body
 
     User.findOne({ username }, (err, user) => {
         if(err || !user) {
@@ -41,7 +40,7 @@ app.post('/login', (req, res) => {
             if(isMatch) {
                 const payload = { id: user._id }
                 const token = jwt.sign(payload, jwtOptions.secretOrKey)
-                res.json({ message: 'ok', token })
+                res.json({ message: 'ok', token, username })
             }
         })
     })
@@ -53,6 +52,6 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res) 
 
 
 app.get('/', (req, res) => res.send('Hello'))
-app.use('/api', apiRouter)
+app.use('/api', createApiRouter({ passport, jwt}))
 
 app.listen(4000, () => console.log('app listening'))
