@@ -20,7 +20,26 @@ function getUser(req, res){
     })
 }
 
+const createAuthenticateUser = ({jwt, jwtOptions}) => (req, res) => {
+    const { username, password } = req.body
+
+    User.findOne({ username }, (err, user) => {
+        if(err || !user) {
+            console.log(err)
+            return res.status(401).json({ message: 'no such user found '})
+        }
+        user.comparePassword(password, (err, isMatch) => {
+            if(isMatch) {
+                const payload = { id: user._id }
+                const token = jwt.sign(payload, jwtOptions.secretOrKey)
+                res.json({ message: 'ok', token, username })
+            }
+        })
+    })
+}
+
 module.exports = {
     createUser,
-    getUser
+    getUser,
+    createAuthenticateUser
 }

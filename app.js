@@ -28,30 +28,12 @@ app.get('/new-user', (req, res) => {
     })
 })
 
-app.post('/login', (req, res) => {
-    const { username, password } = req.body
-
-    User.findOne({ username }, (err, user) => {
-        if(err || !user) {
-            console.log(err)
-            return res.status(401).json({ message: 'no such user found '})
-        }
-        user.comparePassword(password, (err, isMatch) => {
-            if(isMatch) {
-                const payload = { id: user._id }
-                const token = jwt.sign(payload, jwtOptions.secretOrKey)
-                res.json({ message: 'ok', token, username })
-            }
-        })
-    })
-})
-
 app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res) => {
     res.json({message:'successful secret revealed', id: req.user.id, username: req.user.username})
 })
 
 
 app.get('/', (req, res) => res.send('Hello'))
-app.use('/api', createApiRouter({ passport, jwt}))
+app.use('/api', createApiRouter({ passport, jwt, jwtOptions}))
 
 app.listen(4000, () => console.log('app listening'))
