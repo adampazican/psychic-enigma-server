@@ -1,41 +1,49 @@
 const User = require('../models/user')
 
-function createUser(req, res){
-    const username = req.body.username
-    const password = req.body.password
+async function createUser(req, res){
+    const { username, password } = req.body
 
     const user = new User({ username, password })
 
-    user.save().then(newDoc =>
-        res.json({ status: 'ok', ...newDoc._doc})
-    )
+    try{
+        const newDoc = await user.save()
+        const { level, username } = newDoc._doc
+        res.json({ status: 'ok', username, _id, level})
+    }
+    catch(err){
+        res.status(400).json({ status: '400', message: 'Couldn\'t create user'})
+    }
 }
 
-function getUser(req, res){
+async function getUser(req, res){
     const userId = req.params.userId
 
-    User.findOne({ _id: userId }).then(user => {
+    try{
+        const user = await User.findOne({ _id: userId }, User)
         const { username, level } = user._doc
         res.json({ status: 'ok', username, level})
-    })
+    }
+    catch(err){
+        res.status(404).json({ status: '404', message: 'User not found' })
+    }
 }
 
-const createAuthenticateUser = ({jwt, jwtOptions}) => (req, res) => {
+const createAuthenticateUser = ({ jwt, jwtOptions }) => async (req, res) => {
     const { username, password } = req.body
 
-    User.findOne({ username }, (err, user) => {
-        if(err || !user) {
-            console.log(err)
-            return res.status(401).json({ message: 'no such user found '})
+    try{
+        const user = await User.findOne({ username })
+        const isMatch = await user.comparePassword(password)
+
+        if(isMatch){
+            const payload = { is: user._id }
+            const token = jwt.sign(payload, jwtOptions.secretOrKey)
+            res.json({ message: 'ok', token, username })
         }
-        user.comparePassword(password, (err, isMatch) => {
-            if(isMatch) {
-                const payload = { id: user._id }
-                const token = jwt.sign(payload, jwtOptions.secretOrKey)
-                res.json({ message: 'ok', token, username })
-            }
-        })
-    })
+    }
+    catch(err){
+         res.status(401).json({ message: 'no such user found '})
+    }
 }
 
 module.exports = {

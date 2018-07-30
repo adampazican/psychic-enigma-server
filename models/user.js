@@ -13,10 +13,27 @@ const userSchema = new Schema({
     level: { type: Number, default: 0 }
 })
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', async function(next) {
     if(!this.isModified('password')) return next()
 
-    bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
+    try{
+        const salt = await bcrypt.genSalt(SALT_WORK_FACTOR)
+        const hash = await bcrypt.hash(this.password, salt)
+        this.password = hash
+        next()
+    }
+    catch(err){
+        next(err)
+    }
+})
+
+userSchema.methods.comparePassword = function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password)
+}
+
+module.exports = mongoose.model('User', userSchema)
+/* 
+bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
         if(err) return next(err)
 
         bcrypt.hash(this.password, salt, (err, hash) => {
@@ -26,13 +43,4 @@ userSchema.pre('save', function(next) {
             next()
         })
     })
-})
-
-userSchema.methods.comparePassword = function(candidatePassword, callback) {
-    bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {
-        if(err) return callback(err)
-        callback(null, isMatch)
-    })
-}
-
-module.exports = mongoose.model('User', userSchema)
+*/

@@ -2,7 +2,6 @@ const express = require('express')
 const subjectsController = require('./subjects-controller')
 const usersController = require('./users-controller')
 
-
 const createRouter = ({passport, jwt, jwtOptions}) => {
     const router = express.Router()
 
