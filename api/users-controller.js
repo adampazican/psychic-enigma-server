@@ -7,7 +7,7 @@ async function createUser(req, res){
 
     try{
         const newDoc = await user.save()
-        const { level, username } = newDoc._doc
+        const { level } = newDoc._doc
         res.json({ status: 'ok', username, _id, level})
     }
     catch(err){
@@ -19,7 +19,7 @@ async function getUser(req, res){
     const userId = req.params.userId
 
     try{
-        const user = await User.findOne({ _id: userId }, User)
+        const user = await User.findOne({ _id: userId })
         const { username, level } = user._doc
         res.json({ status: 'ok', username, level})
     }
@@ -38,7 +38,10 @@ const createAuthenticateUser = ({ jwt, jwtOptions }) => async (req, res) => {
         if(isMatch){
             const payload = { is: user._id }
             const token = jwt.sign(payload, jwtOptions.secretOrKey)
-            res.json({ message: 'ok', token, username })
+            return res.json({ message: 'ok', token, username })
+        }
+        else{
+            return res.status(404).json({ status: '404', message: 'User not found' })
         }
     }
     catch(err){

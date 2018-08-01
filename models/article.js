@@ -8,6 +8,11 @@ const articleSchema = new Schema({
         ref: 'User',
         required: true
     },
+    subject: {
+        type: Schema.Types.ObjectId,
+        ref: 'Subject',
+        required: true
+    },
     title: { type: String, required: true },
     text: { type: String, required: true },
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]

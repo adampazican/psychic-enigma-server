@@ -1,8 +1,9 @@
 const express = require('express')
 const subjectsController = require('./subjects-controller')
 const usersController = require('./users-controller')
+const articleController = require('./article-controller')
 
-const createRouter = ({passport, jwt, jwtOptions}) => {
+const createRouter = ({ passport, jwt, jwtOptions }) => {
     const router = express.Router()
 
     router.get('/subjects', subjectsController.getSubjects)
@@ -13,6 +14,9 @@ const createRouter = ({passport, jwt, jwtOptions}) => {
     router.get('/users/:userId', usersController.getUser)
     router.post('/users', usersController.createUser)
     router.post('/user/login', usersController.createAuthenticateUser({ jwt, jwtOptions}))
+
+    router.get('/:subject/', articleController.getArticles)
+    router.post('/:subject/', articleController.createArticle)
 
     return router
 }
