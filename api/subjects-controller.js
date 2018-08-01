@@ -1,4 +1,5 @@
 const Subject = require('../models/subject')
+const { removeDiacritics } = require('../utils/utils')
 
 async function getSubjects(req, res){
     try{
@@ -15,7 +16,8 @@ async function createSubject(req, res){
 
     const subject = new Subject({
         name,
-        image
+        image,
+        alias: removeDiacritics(name)
     })
 
     try{
@@ -30,12 +32,13 @@ async function createSubject(req, res){
 async function updateSubject(req, res){
     const _id = req.params.subjectId
     const { name, image } = req.body
-
+    
     try{
         const subject = await Subject.findOne({ _id })
         subject.name = name || subject.name
+        subject.alias = name ? removeDiacritics(name) : subject.alias
         subject.image = image || subject.image
-        
+
         const newDoc = await subject.save()
         res.json({ status: "ok", ...newDoc._doc })
     }

@@ -4,10 +4,7 @@ const Schema = mongoose.Schema
 
 const subjectSchema = new Schema({
     name: { type: String, required: true },
-    articles: {
-        type: Schema.Types.ObjectId,
-        ref: 'Article'
-    },
+    alias: { type: String, required: true },
     image: Schema.Types.Url
 })
 

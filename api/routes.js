@@ -16,6 +16,7 @@ const createRouter = ({ passport, jwt, jwtOptions }) => {
     router.post('/user/login', usersController.createAuthenticateUser({ jwt, jwtOptions}))
 
     router.get('/:subject/', articleController.getArticles)
+    router.get('/:subject/:title', articleController.getArticle)
     router.post('/:subject/', articleController.createArticle)
 
     return router

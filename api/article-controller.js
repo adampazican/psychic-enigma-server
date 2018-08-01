@@ -6,7 +6,7 @@ async function createArticle(req, res){
     const { subject } = req.params
     
     try{
-        const subj = await Subject.findOne({ name: subject })
+        const subj = await Subject.findOne({ alias: subject })
         
         const article = new Article({ author, title, text, subject: subj._doc._id })
         const newDoc = await article.save()
@@ -23,7 +23,7 @@ async function getArticles(req, res){
     const { subject } = req.params
 
     try{
-        const subj = await Subject.findOne({ name: subject })
+        const subj = await Subject.findOne({ alias: subject })
         const articles = await Article
             .find({ subject: subj._doc._id })
             .populate('author')
@@ -36,7 +36,25 @@ async function getArticles(req, res){
     }    
 }
 
+async function getArticle(req, res){
+    const { title, subject } = req.params
+
+    try{
+        const subj = await Subject.findOne({ alias: subject })
+        const article = await Article
+            .findOne({ subject: subj._doc._id, title })
+            .populate('author')
+            .populate('subject')
+            .exec()
+        res.json({ status: 'ok', ...article._doc})
+    }
+    catch(err){
+        res.status(404).json({ status: '404', message: 'Couldn\'t find article'})
+    }
+}
+
 module.exports = {
     createArticle,
-    getArticles
+    getArticles,
+    getArticle
 }
