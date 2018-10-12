@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
-const mongoDB = 'mongodb://localhost:27017/danube'
+const mongoDB = process.env.DB_HOST
 
-mongoose.connect(mongoDB, { useNewUrlParser: true})
+mongoose.connect(mongoDB, { useNewUrlParser: true })
 
 mongoose.Promise = global.Promise
 

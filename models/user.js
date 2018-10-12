@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const bcrypt = require('bcrypt')
-const SALT_WORK_FACTOR = 10
+const SALT_WORK_FACTOR = process.env.SALT_WORK_FACTOR
 
 const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
@@ -32,15 +32,3 @@ userSchema.methods.comparePassword = function(candidatePassword) {
 }
 
 module.exports = mongoose.model('User', userSchema)
-/* 
-bcrypt.genSalt(SALT_WORK_FACTOR, (err, salt) => {
-        if(err) return next(err)
-
-        bcrypt.hash(this.password, salt, (err, hash) => {
-            if(err) return next(err)
-
-            this.password = hash
-            next()
-        })
-    })
-*/
